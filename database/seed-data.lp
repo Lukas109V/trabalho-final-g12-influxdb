@@ -1,0 +1,16 @@
+sensor_reading,sensorId=S01,room=LAB_A,type=environment,status=OK temperature=24.5,humidity=61.0,co2=520.0,battery=95i 1718604000
+sensor_reading,sensorId=S01,room=LAB_A,type=environment,status=OK temperature=25.1,humidity=60.0,co2=550.0,battery=94i 1718604600
+sensor_reading,sensorId=S01,room=LAB_A,type=environment,status=ALERT temperature=29.4,humidity=58.0,co2=920.0,battery=93i 1718605200
+sensor_reading,sensorId=S02,room=LAB_B,type=environment,status=OK temperature=23.2,humidity=65.0,co2=480.0,battery=88i 1718604000
+sensor_reading,sensorId=S02,room=LAB_B,type=environment,status=OK temperature=23.9,humidity=64.0,co2=500.0,battery=87i 1718604600
+sensor_reading,sensorId=S02,room=LAB_B,type=environment,status=ALERT temperature=27.8,humidity=63.0,co2=1100.0,battery=86i 1718605200
+sensor_reading,sensorId=S03,room=SALA_101,type=environment,status=OK temperature=22.0,humidity=70.0,co2=450.0,battery=76i 1718604000
+sensor_reading,sensorId=S03,room=SALA_101,type=environment,status=OK temperature=22.8,humidity=69.0,co2=470.0,battery=75i 1718604600
+sensor_reading,sensorId=S03,room=SALA_101,type=environment,status=OK temperature=23.1,humidity=68.0,co2=490.0,battery=74i 1718605200
+sensor_reading,sensorId=S04,room=SALA_102,type=environment,status=OK temperature=26.2,humidity=55.0,co2=700.0,battery=66i 1718604000
+sensor_reading,sensorId=S04,room=SALA_102,type=environment,status=ALERT temperature=30.1,humidity=52.0,co2=1250.0,battery=65i 1718604600
+sensor_reading,sensorId=S04,room=SALA_102,type=environment,status=ALERT temperature=31.0,humidity=50.0,co2=1320.0,battery=64i 1718605200
+sensor_info,sensorId=S01,room=LAB_A,model=DHT22 threshold_temp=28.0,threshold_co2=1000.0 1718604000
+sensor_info,sensorId=S02,room=LAB_B,model=BME280 threshold_temp=28.0,threshold_co2=1000.0 1718604000
+sensor_info,sensorId=S03,room=SALA_101,model=DHT22 threshold_temp=28.0,threshold_co2=1000.0 1718604000
+sensor_info,sensorId=S04,room=SALA_102,model=BME280 threshold_temp=28.0,threshold_co2=1000.0 1718604000

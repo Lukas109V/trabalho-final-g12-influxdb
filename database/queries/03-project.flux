@@ -1,0 +1,4 @@
+from(bucket: "monitoramento")
+  |> range(start: 2024-06-17T00:00:00Z, stop: 2024-06-18T00:00:00Z)
+  |> filter(fn: (r) => r._measurement == "sensor_reading")
+  |> keep(columns: ["_time", "_measurement", "_field", "_value", "sensorId", "room", "status"])
