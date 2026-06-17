@@ -1,5 +1,9 @@
 # Trabalho Final NoSQL — Grupo G12 — InfluxDB
 
+## Integrantes
+Lucas Gabriel Gomes Martins
+Gabriel de Carvalho Souza
+
 ## Banco escolhido
 
 InfluxDB
