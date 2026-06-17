@@ -24,6 +24,7 @@ database/influxdb-config/
 
 # Backups locais criados durante validacao
 backups/
+entregas/
 
 # Artefatos locais de validacao
 app/influxdb-app/validation-logs/

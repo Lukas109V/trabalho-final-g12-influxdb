@@ -87,7 +87,6 @@ trabalho-final-g12-influxdb
 * Codigo da aplicacao: `app/influxdb-app`
 * Scripts do banco: `database/docker-compose.yml`, `database/seed-data.lp` e `database/queries`
 * Slides finais: `outputs/apresentacao-programa-g12-influxdb-final.pptx`
-* Relatorio de validacao: `VALIDACAO_FINAL.md`
 
 ## Como executar
 
