@@ -1,37 +1,66 @@
-# Trabalho Final NoSQL — Grupo G12 — InfluxDB
+# Trabalho Final NoSQL - Grupo G12 - InfluxDB
 
 ## Integrantes
-Lucas Gabriel Gomes Martins
-Gabriel de Carvalho Souza
+
+* Lucas Gabriel Gomes Martins
+* Gabriel de Carvalho Souza
 
 ## Banco escolhido
 
-InfluxDB
+InfluxDB, banco NoSQL do tipo Time Series Database (TSDB).
 
-## Tipo de banco
+## Tema
 
-Banco de dados NoSQL do tipo Time Series.
+Sistema de monitoramento ambiental de salas e laboratorios com sensores. A aplicacao registra temperatura, umidade, CO2, bateria e status das leituras ao longo do tempo.
 
-## Tema do projeto
+## Fundamentacao teorica
 
-Sistema de monitoramento ambiental de salas e laboratórios usando sensores.
+O InfluxDB e um banco NoSQL especializado em series temporais. Ele e indicado para dados com timestamp, alto volume de insercao e consultas por janelas de tempo, como IoT, metricas de aplicacoes, telemetria, monitoramento de infraestrutura e alertas.
 
-## Objetivo
+Modelo de dados usado:
 
-O objetivo do projeto é registrar, consultar, atualizar e remover leituras de sensores ambientais. Os sensores armazenam informações como temperatura, umidade, CO2, bateria e status da leitura.
+* `measurement`: agrupamento logico dos dados. O projeto usa `sensor_reading` e `sensor_info`.
+* `timestamp`: instante da leitura.
+* `tags`: metadados indexados para filtros e agrupamentos, como `sensorId`, `room`, `type`, `status` e `model`.
+* `fields`: valores medidos, como `temperature`, `humidity`, `co2`, `battery`, `threshold_temp` e `threshold_co2`.
+* `bucket`: repositorio dos dados. O projeto usa `monitoramento`.
+* `organization`: espaco administrativo. O projeto usa `grupo12`.
 
-## Tecnologias utilizadas
+Classificacao CAP no projeto:
 
-* InfluxDB
-* Docker
-* Docker Compose
+* Consistencia: priorizada dentro da instancia unica local.
+* Disponibilidade: existe enquanto o container do InfluxDB estiver ativo.
+* Tolerancia a particao: nao e foco da demonstracao, pois o projeto usa InfluxDB OSS 2.7 em container unico, sem cluster.
+
+Na pratica, a demonstracao local se comporta como uma implantacao CA single-node. Em cenarios distribuidos ou cloud, a classificacao depende da topologia e configuracao usadas.
+
+Vantagens:
+
+* Modelo natural para dados temporais.
+* Boa performance para escrita continua de medicoes.
+* Consultas por intervalo de tempo.
+* Tags indexadas para filtros frequentes.
+* Flux permite filtros, agregacoes, `join`, `pivot` e transformacoes.
+* Interface web, CLI, API HTTP, drivers oficiais, Grafana e Telegraf.
+
+Limitacoes:
+
+* Nao e ideal para dados altamente relacionais.
+* Atualizacao nao e o fluxo principal; no projeto, o update remove as leituras do sensor e insere uma nova.
+* Fields nao sao indexados.
+* Arrays e subdocumentos nao sao estruturas nativas como em MongoDB; foram representados por equivalencias de modelagem e consulta.
+
+## Tecnologias
+
+* InfluxDB 2.7
+* Docker e Docker Compose
 * Java 21
 * Spring Boot
-* Maven
-* Postman
+* Maven Wrapper
 * Flux Query Language
+* Postman ou navegador para testar a API
 
-## Estrutura do projeto
+## Estrutura
 
 ```text
 trabalho-final-g12-influxdb
@@ -53,21 +82,22 @@ trabalho-final-g12-influxdb
     └── influxdb-app
 ```
 
-## Como executar o InfluxDB
+## Entregaveis
 
-Entre na pasta do banco:
+* Codigo da aplicacao: `app/influxdb-app`
+* Scripts do banco: `database/docker-compose.yml`, `database/seed-data.lp` e `database/queries`
+* Slides finais: `outputs/apresentacao-programa-g12-influxdb-final.pptx`
+
+## Como executar
+
+Subir o InfluxDB:
 
 ```bash
 cd database
-```
-
-Suba o container:
-
-```bash
 docker compose up -d
 ```
 
-Acesse o InfluxDB no navegador:
+Acessar a interface web:
 
 ```text
 http://localhost:8086
@@ -76,62 +106,45 @@ http://localhost:8086
 Credenciais:
 
 ```text
-Usuário: admin
+Usuario: admin
 Senha: Admin@12345
-Organização: grupo12
+Organizacao: grupo12
 Bucket: monitoramento
 Token: g12-super-token-influxdb-2026
 ```
 
-## Como inserir os dados iniciais
-
-Copiar o arquivo para dentro do container:
+Importar dados iniciais:
 
 ```bash
 docker cp seed-data.lp g12-influxdb:/tmp/seed-data.lp
-```
-
-Remover caracteres de quebra de linha do Windows:
-
-```bash
 docker exec g12-influxdb sh -c "tr -d '\r' < /tmp/seed-data.lp > /tmp/seed-data-clean.lp"
-```
-
-Inserir os dados no bucket:
-
-```bash
 docker exec g12-influxdb influx write --bucket monitoramento --org grupo12 --token g12-super-token-influxdb-2026 --precision s --file /tmp/seed-data-clean.lp
 ```
 
-## Como executar a aplicação
-
-Entre na pasta da aplicação:
+Executar a aplicacao:
 
 ```bash
 cd app/influxdb-app
-```
-
-Execute usando Maven Wrapper:
-
-```bash
 .\mvnw.cmd spring-boot:run
 ```
 
-A aplicação roda na porta:
+A API fica disponivel em:
 
 ```text
 http://localhost:8080
 ```
 
-## Endpoints da API
+## Endpoints
 
-### Criar leitura
+| Operacao | Metodo | Endpoint |
+| --- | --- | --- |
+| Criar leitura | `POST` | `/api/readings` |
+| Listar leituras | `GET` | `/api/readings` |
+| Buscar por sensor | `GET` | `/api/readings/{sensorId}` |
+| Atualizar sensor | `PUT` | `/api/readings/{sensorId}` |
+| Remover sensor | `DELETE` | `/api/readings/{sensorId}` |
 
-```http
-POST /api/readings
-```
-
-Exemplo de body:
+Body para `POST` ou `PUT`:
 
 ```json
 {
@@ -146,66 +159,45 @@ Exemplo de body:
 }
 ```
 
-### Listar todas as leituras
+## Consultas obrigatorias
 
-```http
-GET /api/readings
-```
+Como o enunciado cita operadores comuns em MongoDB, as consultas foram implementadas com equivalentes em Flux:
 
-### Buscar leituras por sensor
+| Requisito | Equivalente no InfluxDB/Flux | Arquivo |
+| --- | --- | --- |
+| `find` | `from()`, `range()`, `filter()` | `01-find.flux` |
+| `$match` | `filter()` | `02-match.flux` |
+| `$project` | `keep()` | `03-project.flux` |
+| `aggregate` | `mean()` | `04-aggregate.flux` |
+| `$group` | `group(columns: ["room"])` + `mean()` | `05-group.flux` |
+| `$lookup` | `join()` entre `sensor_reading` e `sensor_info` | `06-lookup-join.flux` |
+| `$unwind` | formato longo `_field`/`_value` | `07-unwind-equivalente.flux` |
+| Arrays | conjunto de fields manipulado por `_field`/`_value` | `07-unwind-equivalente.flux` |
+| Subdocumentos | ponto logico com tags e fields; JSON de entrada na API | `ReadingRequest.java`, `seed-data.lp` |
+| Consulta complexa 1 | `pivot()` + `map()` para classificar alertas | `08-consulta-complexa-alertas.flux` |
+| Consulta complexa 2 | `pivot()`, `map()`, `filter()`, `keep()`, `sort()` | `09-consulta-complexa-salas-em-risco.flux` |
 
-```http
-GET /api/readings/S01
-```
+## Decisoes tecnicas
 
-### Atualizar leituras de um sensor
+* Docker Compose foi usado para tornar o banco reproduzivel.
+* Spring Boot expoe uma API REST simples para demonstrar CRUD.
+* O driver `influxdb-client-java` conecta a aplicacao ao InfluxDB.
+* O update usa delete + insert porque series temporais sao orientadas a insercoes historicas.
+* As consultas Flux ficam em arquivos separados para facilitar a apresentacao.
 
-```http
-PUT /api/readings/S99
-```
+## Roteiro de demonstracao
 
-Exemplo de body:
+1. Mostrar o container `g12-influxdb` em execucao.
+2. Abrir `http://localhost:8086` e mostrar a organizacao `grupo12` e o bucket `monitoramento`.
+3. Importar `seed-data.lp`.
+4. Executar a API Spring Boot.
+5. Testar `POST`, `GET`, `PUT` e `DELETE`.
+6. Executar pelo menos duas consultas complexas: `08-consulta-complexa-alertas.flux` e `09-consulta-complexa-salas-em-risco.flux`.
+7. Explicar measurements, tags, fields, bucket e timestamp.
+8. Explicar as equivalencias usadas para os operadores de MongoDB.
 
-```json
-{
-  "sensorId": "S99",
-  "room": "LAB_TESTE_ATUALIZADO",
-  "type": "environment",
-  "status": "ALERT",
-  "temperature": 31.5,
-  "humidity": 55.0,
-  "co2": 1300.0,
-  "battery": 75
-}
-```
+## Referencias
 
-### Remover leituras de um sensor
-
-```http
-DELETE /api/readings/S99
-```
-
-## CRUD implementado
-
-* Create: inserir uma nova leitura de sensor.
-* Read: consultar leituras registradas.
-* Update: atualizar leituras de um sensor.
-* Delete: remover leituras de um sensor.
-
-## Consultas implementadas
-
-| Arquivo                                  | Finalidade                                        |
-| ---------------------------------------- | ------------------------------------------------- |
-| 01-find.flux                             | Consulta equivalente ao find                      |
-| 02-match.flux                            | Consulta equivalente ao $match                    |
-| 03-project.flux                          | Consulta equivalente ao $project                  |
-| 04-aggregate.flux                        | Consulta de agregação com média                   |
-| 05-group.flux                            | Consulta equivalente ao $group                    |
-| 06-lookup-join.flux                      | Consulta equivalente ao $lookup                   |
-| 07-unwind-equivalente.flux               | Consulta equivalente ao $unwind                   |
-| 08-consulta-complexa-alertas.flux        | Consulta complexa de classificação de alertas     |
-| 09-consulta-complexa-salas-em-risco.flux | Consulta complexa mostrando apenas salas em risco |
-
-## Observação sobre o InfluxDB
-
-Como o InfluxDB é um banco de séries temporais, ele não trabalha exatamente da mesma forma que o MongoDB. Por isso, algumas operações foram feitas usando equivalentes em Flux, como `filter()`, `keep()`, `group()`, `mean()`, `join()`, `pivot()` e `map()`.
+* https://docs.influxdata.com/influxdb/v2/reference/key-concepts/data-elements/
+* https://docs.influxdata.com/influxdb/v2/query-data/flux/
+* https://docs.influxdata.com/influxdb/v2/write-data/developer-tools/api/

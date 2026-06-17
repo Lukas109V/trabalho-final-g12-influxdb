@@ -21,3 +21,13 @@ database/influxdb-config/
 # Arquivos temporários
 *.tmp
 *.bak
+
+# Backups locais criados durante validacao
+backups/
+entregas/
+
+# Artefatos locais de validacao
+app/influxdb-app/validation-logs/
+outputs/evidencias/
+outputs/pptx-preview/
+outputs/*.inspect.ndjson
